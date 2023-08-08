@@ -1,14 +1,26 @@
- 
- import express from 'express'
-  import  isLoggedIn  from '../middlewares/auth.middleware.js'
- const router = express.Router()
+import express from "express";
+import isLoggedIn from "../middlewares/auth.middleware.js";
+const router = express.Router();
 
- import { register, login, logout, getProfile } from '../controllers/user.controllers.js'
+import {
+  register,
+  login,
+  logout,
+  getProfile,
+  forgotPassword,
+  resetPassword,
+  changePassword,
+  updateUser
+} from "../controllers/user.controllers.js";
+import upload from "../middlewares/multer.middleware.js";
 
+router.post("/register", upload.single("avatar"), register);
+router.post("/login", login);
+router.get("/logout", logout);
+router.get("/me", isLoggedIn, getProfile);
+router.post("/reset", forgotPassword);
+router.post("/reset/:resetToken", resetPassword);
+router.post('/change-password', isLoggedIn, changePassword)
+router.put('/update', isLoggedIn, upload.single('avatar'), updateUser)
 
- router.post('/register', register)
- router.post('/login', login)
- router.get('/logout', logout)
- router.get('/me', isLoggedIn, getProfile)
-
- export default router
+export default router;

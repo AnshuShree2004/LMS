@@ -1,6 +1,7 @@
 import { Schema, model } from "mongoose";
-import bcrypt from 'bcryptjs'
-import jwt from 'jsonwebtoken'
+import bcrypt from "bcryptjs";
+import jwt from "jsonwebtoken";
+import crypto from "crypto";
 
 const userSchema = new Schema(
   {
@@ -48,7 +49,7 @@ const userSchema = new Schema(
       default: "User",
     },
 
-    forgotPassword: String,
+    forgotPasswordToken: String,
 
     forgotPasswordExpiry: Date,
   },
@@ -57,34 +58,48 @@ const userSchema = new Schema(
   }
 );
 
-
-userSchema.pre('save', async function(){
-  if(!this.isModified('password')) {
-    return next()
+userSchema.pre("save", async function (next) {
+  if (!this.isModified("password")) {
+    return next();
   }
 
-  this.password = await bcrypt.hash(this.password, 10)
-})
-
+  this.password = await bcrypt.hash(this.password, 10);
+});
 
 userSchema.methods = {
-
   comparePassword: async function (plainTextPassword) {
-    return await bcrypt.compare(plainTextPassword, this.password)
+    return await bcrypt.compare(plainTextPassword, this.password);
   },
 
-  generateJWTToken: function() {
+  generateJWTToken: function () {
     return jwt.sign(
-      {_id: this._id, role: this.role, email: this.email, subscription: this.subscription},
+      {
+        _id: this._id,
+        role: this.role,
+        email: this.email,
+        subscription: this.subscription,
+      },
       process.env.JWT_SECRET,
       {
-        expiresIn: process.env.JWT_EXPIRY
+        expiresIn: process.env.JWT_EXPIRY,
       }
-      )
-  }
-}
+    );
+  },
 
+  generatePasswordToken: async function () {
+    const resetToken = crypto.randomBytes(20).toString("hex");
 
-const User = model('User', userSchema)
+    this.forgotPasswordToken = crypto
+      .createHash("sha256")
+      .update(resetToken)
+      .digest("hex");
 
-export default User
+    this.forgotPasswordExpiry = Date.now() + 15 * 60 * 1000;
+
+    return resetToken;
+  },
+};
+
+const User = model("User", userSchema);
+
+export default User;
