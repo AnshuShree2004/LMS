@@ -4,6 +4,7 @@ import cors from "cors";
 import userRoutes from "./routes/user.routes.js";
 import errorMiddleware from "./middlewares/error.middleware.js";
 import morgan from "morgan";
+import courseRoutes from './routes/course.routes.js'
 
 const app = express();
 
@@ -26,6 +27,7 @@ app.use("/ping", (req, res) => {
 
 // 3 route config
 app.use("/api/v1/user", userRoutes);
+app.use('/api/v2/courses', courseRoutes)
 
 app.all("*", (req, res) => {
   res.status(404).send("Oops! 404 page not found");
