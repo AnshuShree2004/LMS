@@ -1,6 +1,6 @@
 import AppError from "../utils/appError.js";
 
-const isLoggedIn = function (req, res, next) {
+ export const isLoggedIn = function (req, res, next) {
   const { token } = req.cookies;
 
   if (!token) {
@@ -20,4 +20,21 @@ const isLoggedIn = function (req, res, next) {
   next();
 };
 
-export default isLoggedIn;
+
+export const authorizedRoles = (...roles) => (req, res, next) => {
+
+  const currentRole = req.user.role
+  if( !roles.includes(currentRole)) {
+    return next (
+      new AppError('You do not have permission to accesss this route.', 403)
+      )
+  }
+next()
+}
+
+//export {
+//  isLoggedIn,
+ // authorizedRoles
+//} */
+
+export default isLoggedIn
