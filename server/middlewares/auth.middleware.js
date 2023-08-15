@@ -32,9 +32,4 @@ export const authorizedRoles = (...roles) => (req, res, next) => {
 next()
 }
 
-//export {
-//  isLoggedIn,
- // authorizedRoles
-//} */
-
 export default isLoggedIn

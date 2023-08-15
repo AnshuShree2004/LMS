@@ -206,3 +206,33 @@ export const addLectureToCourseById = async(req, res, next) => {
         )
     }
 }
+
+
+export const deleteLectureFromCourseById = async (req, res, next) => {
+    // select course by courseId
+
+    const { courseId } = req.params
+    // look for courses whether it exists or not
+
+    try {
+        const lecture = await Course.findByIdAndDelete(courseId)
+
+    if(!lecture) {
+        return next( 
+            new AppError('Lecture does not exist with this course id.', 400)
+        )
+    }
+
+    await lecture.save()
+    // response success
+
+    res.status(400).json({
+        success: true,
+        message: 'Lecture deleted successfully!'
+    })  
+    } catch (error) {
+        return next( 
+            new AppError(error.message, 400)
+        )
+    }
+  }
